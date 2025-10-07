@@ -1,0 +1,166 @@
+
+
+************************************************************************************
+* NEW SESSION **********************************************************************
+************************************************************************************
+
+07/18/2025 12:17:50
+***mGamePhase:GreenFlag(5)
+***mSession:Race(10)
+***mYellowFlagState:NoFlag(0)
+***mSector:2
+***mCurrentSector:0x00000001
+***mInRealtimeFC:true(1)
+***mInRealtimeSU:true(1)
+***mSectorFlag[0]:Unknown(11)
+***mSectorFlag[1]:Pending(1)
+***mSectorFlag[2]:Unknown(11)
+***mInPits:false(0)
+***mIsPlayer:true(1)
+***mPlace:18
+***mPitState:None(0)
+***mIndividualPhase:GreenFlag(5)
+***mFlag:Green(0)
+***mUnderYellow:0
+***mCountLapFlag:CountLapAndTime(2)
+***mInGarageStall:false(0)
+***mFinishStatus:None(0)
+***mLapNumber:1
+***mTotalLaps:1
+***mMaxLaps:2147483647
+***mNumVehicles:18
+***mHeadlights:true(1)
+***mSpeedLimiter:false(0)
+***mFrontTireCompoundIndex:false(0)
+***mRearTireCompoundIndex:false(0)
+***mFrontTireCompoundName:Medium
+***mRearTireCompoundName:Medium
+***mFrontFlapActivated:false(0)
+***mRearFlapActivated:false(0)
+***mRearFlapLegalStatus:Disallowed(0)
+***mIgnitionStarter:Ignition(1)
+***mSpeedLimiterAvailable:true(1)
+***mAntiStallActivated:false(0)
+***mStartLight:0
+***mNumRedLights:5
+***mNumPitstops:0
+***mNumPenalties:1
+***mLapsBehindNext:0
+***mLapsBehindLeader:0
+***mPlayerHeadlights:true(1)
+***mServerScored:true(1)
+***mQualification:14
+
+07/18/2025 12:18:28
+***mCurrentSector:0x80000001
+***mInRealtimeFC:false(0)
+***mIgnitionStarter:Off(0)
+
+07/18/2025 12:18:32
+***mGamePhase:PausedOrHeartbeat(9)
+***mSector:1
+***mCurrentSector:0x00000000
+***mInRealtimeFC:true(1)
+***mInRealtimeSU:false(0)
+***mControl:AI(1)
+***mPlace:14
+***mIndividualPhase:Formation(3)
+***mCountLapFlag:DoNotCountLap(0)
+***mLapNumber:0
+***mTotalLaps:0
+***mHeadlights:false(0)
+***mNumPenalties:0
+***mPlayerHeadlights:false(0)
+
+07/18/2025 12:18:32
+***mGamePhase:Garage(0)
+***mInRealtimeSU:true(1)
+***mSectorFlag[1]:Unknown(11)
+***mControl:Player(0)
+***mStartLight:1
+
+07/18/2025 12:18:33
+***mIgnitionStarter:Ignition(1)
+
+07/18/2025 12:18:33
+***mIgnitionStarter:IgnitionAndStarter(2)
+
+07/18/2025 12:18:33
+***mIgnitionStarter:Ignition(1)
+
+07/18/2025 12:18:37
+***mSectorFlag[0]:PitLeadLap(3)
+
+
+************************************************************************************
+* NEW SESSION **********************************************************************
+************************************************************************************
+
+07/18/2025 12:18:39
+***mGamePhase:Formation(3)
+***mSector:3
+***mCurrentSector:0x00000002
+
+07/18/2025 12:18:39
+***mStartLight:0
+
+07/18/2025 12:18:40
+***mSectorFlag[0]:Unknown(11)
+
+07/18/2025 12:20:45
+***mCurrentSector:0x00000000
+
+07/18/2025 12:20:46
+***mGamePhase:GreenFlag(5)
+***mSector:1
+***mIndividualPhase:GreenFlag(5)
+***mCountLapFlag:CountLapAndTime(2)
+***mStartLight:6
+***mNumPenalties:1
+
+07/18/2025 12:20:46
+***mPlace:1
+
+07/18/2025 12:20:50
+***mPlace:10
+
+07/18/2025 12:20:51
+***mPlace:13
+
+07/18/2025 12:20:55
+***mStartLight:0
+
+07/18/2025 12:21:03
+***mPlace:10
+
+07/18/2025 12:21:07
+***mPlace:7
+
+07/18/2025 12:21:23
+***mPlace:6
+
+07/18/2025 12:21:27
+***mPlace:5
+
+07/18/2025 12:21:29
+***mCurrentSector:0x00000001
+
+07/18/2025 12:21:29
+***mSector:2
+
+07/18/2025 12:21:35
+***mPlace:4
+
+07/18/2025 12:21:37
+***mHeadlights:true(1)
+***mPlayerHeadlights:true(1)
+
+07/18/2025 12:21:55
+***mSector:3
+***mCurrentSector:0x00000002
+
+07/18/2025 12:21:55
+***mPlace:3
+
+07/18/2025 12:22:00
+***mPlace:2
