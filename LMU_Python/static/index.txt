@@ -236,6 +236,6 @@
       <canvas id="chartTire" width="1200" height="300"></canvas>
     </div>
   </div>
-  <script src="/static/script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
