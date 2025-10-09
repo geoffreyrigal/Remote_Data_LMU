@@ -90,11 +90,13 @@ if __name__ == "__main__":
     track_name = get_track()
     track_lenght = get_track_lenght()
     last_laps = {i: -1 for i in range(len(cars))}
+    skip_tick_tire = 0
+    speed_history = []
+    tire_history = []
 
     while True:
-        info.update()  # met à jour les infos depuis le jeu
         for i, car in enumerate(cars):
-            current_lap = car.mLapNumber
+            current_lap = get_lap_number
 
             # Si le numéro de tour a changé => fin d'un tour
             if current_lap != last_laps[i]:
@@ -102,5 +104,11 @@ if __name__ == "__main__":
                     #action
                     print(f"Voiture {i} a terminé le tour {current_lap}")
                 last_laps[i] = current_lap
-
+            # Sinon ajouter les données dans les listes
+            else:
+                speed_history.append(get_speed())
+                if skip_tick_tire == 50:
+                    tire_history.append
+                else:
+                    skip_tick_tire += 1
         time.sleep(0.1)

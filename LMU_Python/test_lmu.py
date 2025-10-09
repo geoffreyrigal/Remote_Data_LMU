@@ -1,5 +1,5 @@
 import sys
-sys.path.append(r"C:\Users\geoff\pyRfactor2SharedMemory")
+sys.path.append(r"C:\Users\geoff\Desktop\Informatique\lmu\pyRfactor2SharedMemory")
 import time
 from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
@@ -26,14 +26,4 @@ t = info.playersVehicleTelemetry()
 s = info.playersVehicleScoring()
 scoring_info = info.Rf2Scor.mScoringInfo
 
-avgtime = 115
-
-def final_calcul():
-    for x in range(0, 70):
-        print(avgtime + g(x) * (math.e(h(x)*x) - 1))
-
-def g(current_lap):
-    ...
-  
-def h(current_lap):
-    ...
+print(dir(cars))
