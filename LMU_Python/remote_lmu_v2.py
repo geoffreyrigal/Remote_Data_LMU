@@ -46,13 +46,20 @@ CORS(app)
 script_running = False
 script_thread = None
 
+################################# Global Variables #################################
 info = SimInfoAPI()
 cars = info.Rf2Scor.mVehicles
 t = info.playersVehicleTelemetry()
 s = info.playersVehicleScoring()
 scoring_info = info.Rf2Scor.mScoringInfo
 
-################################# Simple Function #################################
+classements = ["GT3", "GTE", "LMP2", "P2", "Hyper"]
+
+current_flag = ""
+previous_flag = ""
+
+
+################################# Govee Function #################################
 
 def send_command(name, value):
     payload = {
@@ -75,6 +82,8 @@ def set_color(r: int, g: int, b: int):
 def set_brightness(level: int):
     return send_command("brightness", level)
 
+################################# Usefull Function #################################
+
 def get_speed():
     vx, vy, vz = t.mLocalVel.x, t.mLocalVel.y, t.mLocalVel.z
     return round(math.sqrt(vx**2 + vy**2 + vz**2) * 3.6, 1)
@@ -82,7 +91,12 @@ def get_speed():
 def fahrenheit_to_celsius(f):
     return round((f - 32) * 5 / 9, 1)
 
+################################# Collect Data #################################
+
 def get_session():
+    """
+    Return the state of session.
+    """
     current_session = scoring_info.mSession
     if current_session > 0 and current_session < 5:
         return "Practice"
@@ -95,8 +109,10 @@ def get_session():
     else:
         return "N/A"
 
-classements = ["GT3", "GTE", "LMP2", "P2", "Hyper"]
 def is_superior_class(my_class, other_class):
+    """
+    Return True if the car behind or in front is in a faster category.
+    """
     try:
         my_rank = classements.index(my_class)
         other_rank = classements.index(other_class)
@@ -104,8 +120,6 @@ def is_superior_class(my_class, other_class):
     except ValueError:
         return False
 
-current_flag = ""
-previous_flag = ""
 power(True)
 def get_flag():
     global current_flag, previous_flag
