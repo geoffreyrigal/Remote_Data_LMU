@@ -19,7 +19,9 @@ for elem in bib:
             exit()
 
 import sys
-sys.path.append(r"C:\Users\geoff\Desktop\Informatique\lmu\pyRfactor2SharedMemory")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+shared_memory_path = os.path.join(current_dir, "..", "pyRfactor2SharedMemory")
+sys.path.append(shared_memory_path)
 import time
 from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
@@ -30,8 +32,7 @@ import os
 import threading
 import requests
 
-path = "C:\\Users\\geoff\\Desktop\\Informatique\\lmu\\LMU_Python"
-os.chdir(path)
+os.chdir(current_dir)
 API_KEY = "c21f29f8-5d60-44dc-920a-984bee09df9a"
 DEVICE = "08:03:D0:C9:07:0C:1F:BE"
 BASE_URL = "https://developer-api.govee.com/v1"
@@ -95,7 +96,7 @@ def get_session():
     else:
         return "N/A"
 
-classements = ["GT3", "GTE", "LMP2", "P2", "Hyper"]
+classements = ["GT3", "GTE", "LMP3", "LMP2", "LMP2_ELMS", "Hyper"]
 def is_superior_class(my_class, other_class):
     try:
         my_rank = classements.index(my_class)
