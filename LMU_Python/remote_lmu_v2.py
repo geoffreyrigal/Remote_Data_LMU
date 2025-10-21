@@ -64,8 +64,6 @@ error_code = [
 
 current_flag = ""
 previous_flag = ""
-clock = 0
-
 
 ################################# Govee Function #################################
 """
@@ -422,11 +420,9 @@ def telemetry():
         direc_live_smooth
     ]
 
-
-
 ################################# Info collected #################################
 
-@app.route("/active_race_info")
+@app.route("/race_dump_info")
 def info_to_update():
     """
     Collect all the data witch need to be update the faster as possible for comfort
@@ -507,7 +503,7 @@ def info_to_update():
 
 @app.route("/")
 def serve_home():
-    return send_from_directory("static", "index.html")
+    return send_from_directory("static", "index_v2.html")
 
 @app.route("/diagnostic")
 def diagnostic():
@@ -518,14 +514,12 @@ def diagnostic():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=False)
-    while True:
-        if clock == 20:
-            ...
-
-
 
 #https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin/blob/master/Monitor/rF2SMMonitor/rF2SMMonitor/rF2Data.cs
 #https://github.com/TonyWhitley/pyRfactor2SharedMemory
+
+
+
 
 ################################# Practice Session ################################# To work on
 
@@ -647,7 +641,7 @@ def toggle_script():
         script_running = False
         active_program = None
         return f"🔴 Programme {program} stoppé"
-"""
+
 @app.route("/practice")
 def practice_data():
     if not info.isRF2running() or not info.isSharedMemoryAvailable():
@@ -664,6 +658,5 @@ def practice_data():
         "tireWear_FR": t.mWheels[1].mWear,
         "tireWear_RL": t.mWheels[2].mWear,
         "tireWear_RR": t.mWheels[3].mWear,
-        "battery": round(battery, 2),
         "isPractice": get_session()
-    })"""
+    })
