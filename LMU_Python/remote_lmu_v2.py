@@ -20,7 +20,6 @@ for elem in bib:
 
 import sys
 project_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-print(project_path)
 sys.path.append(f"{project_path}\\..\\pyRfactor2SharedMemory")
 import time
 from flask import Flask, jsonify, request, abort, send_from_directory
@@ -207,13 +206,13 @@ def typeOfFlags():
     """
     This function return the current flag
     """
-    return {"flag": get_flag()}
+    return get_flag()
 
 def isCarBehind(track_length=scoring_info.mLapDist):
     """
     This function return if there is a car behind you from a faster category
-    Return {"warn":"False"} if track length is null 
-    or {"warn":"True", name of the clother veihcule, the distance between you and the clother car, the category of the clother car, the number of veihcule concerned (300m max)}
+    Return ["False", None*4] if track length is null 
+    or ["True", name of the clother veihcule, the distance between you and the clother car, the category of the clother car, the number of veihcule concerned (300m max)]
     """
     
     my_dist = s.mLapDist
@@ -232,7 +231,7 @@ def isCarBehind(track_length=scoring_info.mLapDist):
             if not is_superior_class(my_class, other_class) or my_class == other_class:
                 continue
             if track_length == 0.0:
-                return {"warn": "False"}
+                return ["False", None, None, None, None]
             dist = (my_dist - other.mLapDist + track_length) % track_length
             if 0 < dist < 300 and dist < max_dist:
                 veih_clother = bytes(other.mVehicleName).split(b'\x00')[0].decode("utf-8", errors="ignore")
@@ -241,21 +240,21 @@ def isCarBehind(track_length=scoring_info.mLapDist):
                 nbr_veih += 1
     
     if max_dist == float("inf"):
-        return {"warn": "False"}
+        return ["False", None, None, None, None]
     else:
-        return {
-            "warn": "True",
-            "veih_clother": veih_clother,
-            "max_dist": max_dist,
-            "cat_clother": cat_clother,
-            "nbr_veih": nbr_veih
-        }
+        return [
+            "True",
+            veih_clother,
+            max_dist,
+            cat_clother,
+            nbr_veih
+        ]
 
 def isCarInFront(track_length=scoring_info.mLapDist):
     """
     This function return if there is a car in front of you from a faster category
-    Return {"warn":"False"} if track length is null 
-    or {"warn":"True", name of the clother veihcule, the distance between you and the clother car, the category of the clother car, the number of veihcule concerned (300m max)}
+    Return ["False", None*4] if track length is null 
+    or ["True", name of the clother veihcule, the distance between you and the clother car, the category of the clother car, the number of veihcule concerned (300m max)]
     """
     
     my_dist = s.mLapDist
@@ -274,7 +273,7 @@ def isCarInFront(track_length=scoring_info.mLapDist):
             if is_superior_class(my_class, other_class) or my_class == other_class:
                 continue
             if track_length == 0.0:
-                return {"warn": "False"}
+                return ["False", None, None, None, None]
             dist = (other.mLapDist - my_dist + track_length) % track_length
             if 0 < dist < 300 and dist < max_dist:
                 veih_clother = bytes(other.mVehicleName).split(b'\x00')[0].decode("utf-8", errors="ignore")
@@ -283,15 +282,15 @@ def isCarInFront(track_length=scoring_info.mLapDist):
                 nbr_veih += 1
     
     if max_dist == float("inf"):
-        return {"warn": "False"}
+        return ["False", None, None, None, None]
     else:
-        return {
-            "warn": "True",
-            "veih_clother": veih_clother,
-            "max_dist": max_dist,
-            "cat_clother": cat_clother,
-            "nbr_veih": nbr_veih
-        }
+        return [
+            "True",
+            veih_clother,
+            max_dist,
+            cat_clother,
+            nbr_veih
+        ]
 
 def sector_times():
     """
@@ -350,7 +349,6 @@ def leaderboard():
 
         for driver in leaderboard:
             driver["behind"] = f"{round(driver['behind'], 1)}s"
-
         return leaderboard
 
     except Exception as e:
@@ -358,7 +356,7 @@ def leaderboard():
 
 def fuel_info():
     """
-    Return a list with the amount of fuel used on last lap, the average use and ???(dont remember wtf)
+    Return a list with the amount of fuel used on last lap, the average use and estimated fuel used for a lap
     """
 
     fuel_used_every_lap = []
@@ -429,11 +427,15 @@ def info_to_update():
     """
     sectors = sector_times()
     fuel = fuel_info()
-    damage_raw = getattr(t, "mDentSeverity", [0]*8)
-    damage_list = list(damage_raw)
+    damage_list = list(getattr(t, "mDentSeverity", [0]*8))
     driver_telemetry = telemetry()
+    car_infront = isCarInFront()
+    car_behind = isCarBehind()
 
     return {
+        ############### Session Infos
+        "RF2_running": "True" if info.isRF2running() else "False",
+        "pluginInjected": "True" if info.isSharedMemoryAvailable() else "False",
         "sessionType": get_session(),
         "trackName": bytes(bytearray(getattr(scoring_info, "mTrackName", b""))).split(b'\x00')[0].decode("utf-8", errors="ignore").strip('\x00') if get_session() != "N/A" else "N/A",
         "vehicleName": bytes(s.mVehicleName).split(b'\x00')[0].decode("utf-8", errors="ignore") if get_session() != "N/A" else "N/A",
@@ -444,6 +446,7 @@ def info_to_update():
         "position": getattr(s, "mPlace", 0),
         "leaderboard": leaderboard(),
         "currentFlag": typeOfFlags(),
+        ############### Timing Infos
         "best_lap": round(getattr(s, "mBestLapTime", 0),3) if getattr(t, "mLapNumber", 0) > 1 else "-",
         "last_lap": round(getattr(s, "mLastLapTime", 0),3) if getattr(t, "mLapNumber", 0) > 1 else "-",
         "delta_last_lap": round(getattr(s, "mLastLapTime", 0) - getattr(s, "mBestLapTime", 0),3) if getattr(t, "mLapNumber", 0) > 1 else "-",
@@ -453,6 +456,28 @@ def info_to_update():
         "best_sector1": sectors[3],
         "best_sector2": sectors[4],
         "best_sector3": sectors[5],
+        ############### Close Car In Front
+        "warn_infront": car_infront[0],
+        "veih_clother_infront": car_infront[1],
+        "max_dist_infront": car_infront[2],
+        "cat_clother_infront": car_infront[3],
+        "nbr_veih_infront": car_infront[4],
+        ############### Close Car Behind
+        "warn_behind": car_behind[0],
+        "veih_clother_behind": car_behind[1],
+        "max_dist_behind": car_behind[2],
+        "cat_clother_behind": car_behind[3],
+        "nbr_veih_behind": car_behind[4],
+        ############### Damage model
+        "F": damage_list[0],
+        "FL": damage_list[1],
+        "CL": damage_list[2],
+        "BL": damage_list[3],
+        "R": damage_list[4],
+        "BR": damage_list[5],
+        "CR": damage_list[6],
+        "FR": damage_list[7],
+        ############### Car Stats
         "speed": get_speed(),
         "rpm": round(getattr(t, "mEngineRPM", 0), 0),
         "gear": getattr(t, "mGear", 0),
@@ -469,30 +494,22 @@ def info_to_update():
         "fuelUsedLastLap": fuel[0],
         "fuelUsedAverage": fuel[1],
         "fuelEstimation": fuel[2],
-        "isCarBehind": isCarBehind(),
-        "isCarInFront": isCarInFront(),
-        "F": damage_list[0],
-        "FL": damage_list[1],
-        "CL": damage_list[2],
-        "BL": damage_list[3],
-        "R": damage_list[4],
-        "BR": damage_list[5],
-        "CR": damage_list[6],
-        "FR": damage_list[7],
         "oilTemp": round(getattr(t, "mEngineOilTemp", 0),1),
         "waterTemp": round(getattr(t, "mEngineWaterTemp", 0), 1),
-        "overheating": isOverheating(),
         "turboPressure": getattr(t, "mTurboBoostPresure", 0),
+        ############### Driver Inputs
         "live_throttle": driver_telemetry[0],
         "live_brake": driver_telemetry[1],
         "live_direc": driver_telemetry[2],
         "live_throttle_smooth": driver_telemetry[3],
         "live_brake_smooth": driver_telemetry[4],
         "live_direc_smooth": driver_telemetry[5],
+        ############### Tire Wear
         "front_Left_Wear": t.mWheels[0].mWear,
         "front_Right_Wear": t.mWheels[1].mWear,
         "rear_Left_Wear": t.mWheels[2].mWear,
         "rear_Right_Wear": t.mWheels[3].mWear,
+        ############### Tire Temperature
         "front_Left_Temp": fahrenheit_to_celsius((t.mWheels[0].mTemperature[0] + t.mWheels[0].mTemperature[1] + t.mWheels[0].mTemperature[2]) / 3),
         "front_Right_Temp": fahrenheit_to_celsius((t.mWheels[1].mTemperature[0] + t.mWheels[1].mTemperature[1] + t.mWheels[1].mTemperature[2]) / 3),
         "rear_Left_Temp": fahrenheit_to_celsius((t.mWheels[2].mTemperature[0] + t.mWheels[2].mTemperature[1] + t.mWheels[2].mTemperature[2]) / 3),

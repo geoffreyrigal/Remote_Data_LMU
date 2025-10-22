@@ -1,5 +1,3 @@
-console.log("JS chargé !");
-
 window.addEventListener("DOMContentLoaded", function () {
     showPage("global");
     const header = document.querySelector(".fixed-head");
@@ -63,16 +61,16 @@ function updateData(data){
 
 // ----------------------- Warn Cars Around --------------------------- //
 function fetchWarnCarInFront(data) {
-    if (data.warn === "True") {
+    if (data.warn_infront === "True") {
         const alertBox = document.createElement("div");
         alertBox.className = "car-warning-box-in-front";
 
-        if (data.nbr_veih > 1){
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m in front with ${data.nbr_veih} other faster cars`;
+        if (data.nbr_veih_infront > 1){
+        const message = `${data.veih_clother_infront} (${data.cat_clother_infront}) is ${Math.round(data.max_dist_infront)}m in front with ${data.nbr_veih_infront} other faster cars`;
         alertBox.textContent = message;
         }
         else {
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m in front`;
+        const message = `${data.veih_clother_infront} (${data.cat_clother_infront}) is ${Math.round(data.max_dist_infront)}m in front`;
         alertBox.textContent = message;
         }
         
@@ -89,16 +87,16 @@ function fetchWarnCarInFront(data) {
 }
 
 async function fetchWarnCarBehind(data) {
-    if (data.warn === "True") {
+    if (data.warn_behind === "True") {
         const alertBox = document.createElement("div");
         alertBox.className = "car-warning-box-behind";
 
-        if (data.nbr_veih > 1){
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m behind with ${data.nbr_veih} other faster cars`;
+        if (data.nbr_veih_behind > 1){
+        const message = `${data.veih_clother_behind} (${data.cat_clother_behind}) is ${Math.round(data.max_dist_behind)}m behind with ${data.nbr_veih_behind} other faster cars`;
         alertBox.textContent = message;
         }
         else {
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m behind`;
+        const message = `${data.veih_clother_behind} (${data.cat_clother_behind}) is ${Math.round(data.max_dist_behind)}m behind`;
         alertBox.textContent = message;
         }
         
@@ -119,14 +117,14 @@ async function fetchCurrentFlag(data) {
     const flagElement = document.getElementById("flagDisplay");
     const flagBox = document.querySelector(".flag-box");
 
-    if (data.status === "not ready") {
-        flagElement.textContent = "LMU not running";
-        flagElement.style.color = "gray";
+    if (data.RF2_running === "False" | data.pluginInjected === "False") {
+        flagElement.textContent = "LMU not running or Shared Memory Plugin not/badly injected";
+        flagElement.style.color = "red";
         flagBox.style.backgroundColor = "lightgray";
         return;
     }
 
-    const flag = data.flag;
+    const flag = data.currentFlag;
     flagElement.textContent = `${flag}`;
 
     switch (flag) {
@@ -292,7 +290,7 @@ async function fetchLeaderboard(data) {
     const tbody = document.querySelector("#leaderboard tbody");
     tbody.innerHTML = "";
 
-    data.forEach(driver => {
+    data.leaderboard.forEach(driver => {
         const row = document.createElement("tr");
 
         if (driver.name === data.driverName) {
@@ -385,12 +383,12 @@ async function fetchCar_Data(data) {
     document.getElementById("car_data").innerHTML = `
         <strong>Oil Temperature:</strong> ${data.oilTemp}°C<br>
         <strong>Water Temperature:</strong> ${data.waterTemp}°C<br>
-        <strong>Status Overheating:</strong> ${data.overheating}<br>
+        <strong>Status Overheating:</strong> ${data.isOverheating}<br>
         <strong>Pressure Turbo:</strong> ${data.turboPressure}<br>
         <strong>Fuel Level:</strong> ${data.fuel}L / ${data.capacityTank}L<br>
-        <strong>Fuel Used For Previous Lap:</strong> ${data.currentFuelLap}<br>
-        <strong>Average Fuel/Lap:</strong> ${data.averageFuelLap}<br>
-        <strong>Estimated Laps Until Tank Empty:</strong> ${data.estimatedLapFuel}<br>
+        <strong>Fuel Used For Previous Lap:</strong> ${data.fuelUsedLastLap}<br>
+        <strong>Average Fuel/Lap:</strong> ${data.fuelUsedAverage}<br>
+        <strong>Estimated Laps Until Tank Empty:</strong> ${data.fuelEstimation}<br>
     `;
 }
 
@@ -583,9 +581,8 @@ async function updateDriverGraph(data) {
 document.addEventListener("DOMContentLoaded", () => {
     initChartTire();
     bindEvents();
-    fetchCarData();
+    fetchCarData(data);
     setInterval(fetchTire_Data, 500);
-    console.log("Ici")
 });
 
 let chartTire = null;
@@ -715,7 +712,9 @@ function updateTireSimulation() {
     chartTire.update();
 
     let fuellevel = inputValues["fuelselected"];
-    const fuelCapacity = inputValues["fuel_capacity"];
+    console.log(fuellevel)
+    const fuelCapacity = inputValues["capacityTank"];
+    console.log(fuelCapacity)
 
     let dead_fuel_lap = 0;
     while (fuellevel > 0) {
@@ -831,7 +830,7 @@ function bindEvents() {
     document.querySelector('button').addEventListener('click', updateNumericInputs);
 }
 
-async function fetchCarData() {
+async function fetchCarData(data) {
     inputValues["fuel_capacity"] = data.capacityTank;
 }
 
