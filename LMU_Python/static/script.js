@@ -1,5 +1,3 @@
-console.log("JS chargé !");
-
 window.addEventListener("DOMContentLoaded", function () {
     showPage("global");
     const header = document.querySelector(".fixed-head");
@@ -25,24 +23,54 @@ function showPage(name) {
 
 fetch("/diagnostic")
 .then(res => res.json())
-.then(data => console.table(data));
+.then(infoDiagnostic => console.table(infoDiagnostic));
 
-// ----------------------- Warn Cars Around --------------------------- //
-async function fetchWarnCarInFront() {
+async function getData() {
     try {
-    const res = await fetch("/warn_car_in_front");
+    const res = await fetch("/race_dump_info");
     const data = await res.json();
 
-    if (data.warn === "True") {
+    updateData(data);
+    
+    } catch (err) {
+    console.error("Erreur lors de la récupération des données:", err);
+    }    
+}
+
+setInterval(getData, 1000);
+
+function updateData(data){
+    // All pages
+    fetchWarnCarInFront(data);
+    fetchWarnCarBehind(data);
+    fetchCurrentFlag(data);
+    // Page 1
+    fetchBasicRaceInfo(data);
+    fetchRace_Status(data);
+    fetchSectorTimes(data);
+    fetchLeaderboard(data);
+    updateLapGraph(data);
+    // Page 2
+    fetchCar_Infos(data);
+    fetchCar_Data(data);
+    // Page 3
+    updateDriverGraph(data);
+    // Page 4
+    fetchTire_Data(data);
+}
+
+// ----------------------- Warn Cars Around --------------------------- //
+function fetchWarnCarInFront(data) {
+    if (data.warn_infront === "True") {
         const alertBox = document.createElement("div");
         alertBox.className = "car-warning-box-in-front";
 
-        if (data.nbr_veih > 1){
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m in front with ${data.nbr_veih} other faster cars`;
+        if (data.nbr_veih_infront > 1){
+        const message = `${data.veih_clother_infront} (${data.cat_clother_infront}) is ${Math.round(data.max_dist_infront)}m in front with ${data.nbr_veih_infront} other faster cars`;
         alertBox.textContent = message;
         }
         else {
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m in front`;
+        const message = `${data.veih_clother_infront} (${data.cat_clother_infront}) is ${Math.round(data.max_dist_infront)}m in front`;
         alertBox.textContent = message;
         }
         
@@ -56,27 +84,19 @@ async function fetchWarnCarInFront() {
         const container = document.querySelector(".car_in_front");
         container.innerHTML = "";
     }
-
-    } catch (err) {
-    console.error("Erreur lors du fetch warn_car_in_front:", err);
-    }
 }
 
-async function fetchWarnCarBehind() {
-    try {
-    const res = await fetch("/warn_car_behind");
-    const data = await res.json();
-
-    if (data.warn === "True") {
+async function fetchWarnCarBehind(data) {
+    if (data.warn_behind === "True") {
         const alertBox = document.createElement("div");
         alertBox.className = "car-warning-box-behind";
 
-        if (data.nbr_veih > 1){
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m behind with ${data.nbr_veih} other faster cars`;
+        if (data.nbr_veih_behind > 1){
+        const message = `${data.veih_clother_behind} (${data.cat_clother_behind}) is ${Math.round(data.max_dist_behind)}m behind with ${data.nbr_veih_behind} other faster cars`;
         alertBox.textContent = message;
         }
         else {
-        const message = `${data.veih_clother} (${data.cat_clother}) is ${Math.round(data.max_dist)}m behind`;
+        const message = `${data.veih_clother_behind} (${data.cat_clother_behind}) is ${Math.round(data.max_dist_behind)}m behind`;
         alertBox.textContent = message;
         }
         
@@ -90,32 +110,21 @@ async function fetchWarnCarBehind() {
         const container = document.querySelector(".car_behind");
         container.innerHTML = "";
     }
-
-    } catch (err) {
-    console.error("Erreur lors du fetch warn_car_behind:", err);
-    }
 }
 
-setInterval(fetchWarnCarInFront, 500);
-setInterval(fetchWarnCarBehind, 500);
-
 // ----------------------- Display Flag --------------------------- //
-async function fetchCurrentFlag() {
-    try {
-    const res = await fetch("/flags");
-    const data = await res.json();
-
+async function fetchCurrentFlag(data) {
     const flagElement = document.getElementById("flagDisplay");
     const flagBox = document.querySelector(".flag-box");
 
-    if (data.status === "not ready") {
-        flagElement.textContent = "LMU not running";
-        flagElement.style.color = "gray";
+    if (data.RF2_running === "False" | data.pluginInjected === "False") {
+        flagElement.textContent = "LMU not running or Shared Memory Plugin not/badly injected";
+        flagElement.style.color = "red";
         flagBox.style.backgroundColor = "lightgray";
         return;
     }
 
-    const flag = data.flag;
+    const flag = data.currentFlag;
     flagElement.textContent = `${flag}`;
 
     switch (flag) {
@@ -144,16 +153,10 @@ async function fetchCurrentFlag() {
         flagBox.style.backgroundColor = "gray";
         break;
     }
-
-    } catch (err) {
-    console.error("Erreur lors du fetch flags:", err);
-    }
 }
 
-
-setInterval(fetchCurrentFlag, 500);
-
 // ----------------------- Practice Page --------------------------- //
+
 window.addEventListener("DOMContentLoaded", () => {
     fetch("/status")
     .then(res => res.json())
@@ -215,14 +218,8 @@ document.querySelectorAll(".prog_start_button").forEach((btn, index) => {
 
 
 // ----------------------- Global Page --------------------------- //
-async function fetchBasicRaceInfo() {
-    try {
-    const verif = await fetch("/diagnostic");
-    const res = await fetch("/basic_race_info");
-    const data_verif = await verif.json();
-    const data = await res.json();
-
-    if (data_verif.RF2_running === false) {
+async function fetchBasicRaceInfo(data) {
+    if (data.RF2_running === false) {
         document.getElementById("basic_race_info").innerHTML = `
         <div><strong>Please, lauch LMU</strong></div><br>
         `;
@@ -234,17 +231,9 @@ async function fetchBasicRaceInfo() {
         <div><strong>Driver Name:</strong> ${data.driverName}</div><br>
         `;
     }
-
-    } catch (err) {
-    console.error("Erreur lors du fetch basic_race_info:", err);
-    }
 }
 
-async function fetchRace_Status() {
-    try {
-    const res = await fetch("/race_status");
-    const data = await res.json();
-
+async function fetchRace_Status(data) {
     const delta = data.last_lap - data.best_lap;
     let deltaColor = "gray";
     if (delta < 0) deltaColor = "rgb(0, 170, 0)";
@@ -263,16 +252,9 @@ async function fetchRace_Status() {
         <strong>Last Lap:</strong> ${lastLapDisplay}<br>
         <strong>Delta Last Lap:</strong> ${deltaDisplay}<br>
     `;
-    } catch (err) {
-    console.error("Erreur lors du fetch race_status:", err);
-    }
 }
 
-async function fetchSectorTimes() {
-    try {
-    const res = await fetch("/sector_times");
-    const data = await res.json();
-
+async function fetchSectorTimes(data) {
     const sectors = [
         { name: "Sector 1", current: data.sector1, best: data.best_sector1 },
         { name: "Sector 2", current: data.sector2, best: data.best_sector2 },
@@ -301,25 +283,17 @@ async function fetchSectorTimes() {
 
     html += "</table>";
     document.getElementById("sectorTable").innerHTML = html;
-    } catch (err) {
-    console.error("Erreur lors du fetch sector_times:", err);
-    }
 }
 
 
-async function fetchLeaderboard() {
-    try {
-    const res = await fetch("/leaderboard");
-    const res_1 = await fetch("/basic_race_info");
-    const data = await res.json();
-    const data_1 = await res_1.json();
+async function fetchLeaderboard(data) {
     const tbody = document.querySelector("#leaderboard tbody");
     tbody.innerHTML = "";
 
-    data.forEach(driver => {
+    data.leaderboard.forEach(driver => {
         const row = document.createElement("tr");
 
-        if (driver.name === data_1.driverName) {
+        if (driver.name === data.driverName) {
             row.style.backgroundColor = "rgb(75, 75, 75, 1)";
         }
 
@@ -334,15 +308,9 @@ async function fetchLeaderboard() {
         `;
         tbody.appendChild(row);
     });
-    } catch (err) {
-    console.error("Erreur lors du fetch leaderboard:", err);
-    }
 }
 
-async function updateLapGraph() {
-    const res = await fetch("/race_status");
-    const data = await res.json();
-
+async function updateLapGraph(data) {
     const currentLap = data.lap;
     const lapTime = data.last_lap;
     const bestLap = data.best_lap;
@@ -392,18 +360,9 @@ const lapChart = new Chart(ctx, {
     }
 });
 
-setInterval(fetchBasicRaceInfo, 500);
-setInterval(fetchRace_Status, 500);
-setInterval(fetchSectorTimes, 500);
-setInterval(fetchLeaderboard, 500);
-setInterval(updateLapGraph, 500);
 // ----------------------- Car Data --------------------------- //
 
-async function fetchCar_Infos() {
-    try {
-    const res = await fetch("/car_infos");
-    const data = await res.json();
-
+async function fetchCar_Infos(data) {
     document.getElementById("car_infos").innerHTML = `
         <strong>Speed:</strong> ${data.speed} km/h<br>
         <strong>RPM:</strong> ${data.rpm}<br>
@@ -416,30 +375,21 @@ async function fetchCar_Infos() {
         <strong>Speed Limiter Status:</strong> ${data.speedLimiter}<br>
         <strong>Break Balance (Front/Rear):</strong> ${100-data.rearBreakBias}%/${data.rearBreakBias}%<br>
     `;
-    } catch (err) {
-    console.error("Erreur lors du fetch car_infos:", err);
-    }
 }
 
-async function fetchCar_Data() {
-    try {
-    const res = await fetch("/car_data");
-    const data = await res.json();
+async function fetchCar_Data(data) {
     updateDamageMap(data);
 
     document.getElementById("car_data").innerHTML = `
         <strong>Oil Temperature:</strong> ${data.oilTemp}°C<br>
         <strong>Water Temperature:</strong> ${data.waterTemp}°C<br>
-        <strong>Status Overheating:</strong> ${data.overheating}<br>
+        <strong>Status Overheating:</strong> ${data.isOverheating}<br>
         <strong>Pressure Turbo:</strong> ${data.turboPressure}<br>
         <strong>Fuel Level:</strong> ${data.fuel}L / ${data.capacityTank}L<br>
-        <strong>Fuel Used For Previous Lap:</strong> ${data.currentFuelLap}<br>
-        <strong>Average Fuel/Lap:</strong> ${data.averageFuelLap}<br>
-        <strong>Estimated Laps Until Tank Empty:</strong> ${data.estimatedLapFuel}<br>
+        <strong>Fuel Used For Previous Lap:</strong> ${data.fuelUsedLastLap}<br>
+        <strong>Average Fuel/Lap:</strong> ${data.fuelUsedAverage}<br>
+        <strong>Estimated Laps Until Tank Empty:</strong> ${data.fuelEstimation}<br>
     `;
-    } catch (err) {
-    console.error("Erreur lors du fetch car_data:", err);
-    }
 }
 
 function updateDamageMap(data) {
@@ -470,10 +420,7 @@ function updateDamageMap(data) {
     });
 }
 
-setInterval(fetchCar_Infos, 500);
-setInterval(fetchCar_Data, 500);
-
-// ----------------------- Driver Data --------------------------- //
+// ----------------------- Page 3 : Driver Data --------------------------- //
 const maxPoints = 100;
 let tickCounter = 0;
 
@@ -592,18 +539,15 @@ const chartDirec = new Chart(ctxDirec, {
     options: commonOptions(-1, 1, 'Direction (−1 ↔ +1)')
 });
 
-async function updateDriverGraph() {
-    const res = await fetch("/driver_infos");
-    const data = await res.json();
+async function updateDriverGraph(data) {
     if (data.status === "not ready") return;
 
-    const t = data.telemetry;
-    const throttleLive = t.live_throttle * 100;
-    const throttleSmooth = t.live_throttle_smooth * 100;
-    const brakeLive = t.live_brake * 100;
-    const brakeSmooth = t.live_brake_smooth * 100;
-    const direcLive = t.live_direc;
-    const direcSmooth = t.live_direc_smooth;
+    const throttleLive = data.live_throttle * 100;
+    const throttleSmooth = data.live_throttle_smooth * 100;
+    const brakeLive = data.live_brake * 100;
+    const brakeSmooth = data.live_brake_smooth * 100;
+    const direcLive = data.live_direc;
+    const direcSmooth = data.live_direc_smooth;
 
     const label = `t+${tickCounter++}`;
 
@@ -633,13 +577,11 @@ async function updateDriverGraph() {
     });
 }
 
-setInterval(updateDriverGraph, 500);
-
-// ----------------------- Tire Data --------------------------- //
+// ----------------------- Page 4 : Tire Data --------------------------- //
 document.addEventListener("DOMContentLoaded", () => {
     initChartTire();
     bindEvents();
-    fetchCarData();
+    fetchCarData(data);
     setInterval(fetchTire_Data, 500);
 });
 
@@ -770,7 +712,9 @@ function updateTireSimulation() {
     chartTire.update();
 
     let fuellevel = inputValues["fuelselected"];
-    const fuelCapacity = inputValues["fuel_capacity"];
+    console.log(fuellevel)
+    const fuelCapacity = inputValues["capacityTank"];
+    console.log(fuelCapacity)
 
     let dead_fuel_lap = 0;
     while (fuellevel > 0) {
@@ -886,23 +830,13 @@ function bindEvents() {
     document.querySelector('button').addEventListener('click', updateNumericInputs);
 }
 
-async function fetchCarData() {
-    try {
-    const res = await fetch("/car_data");
-    const data = await res.json();
+async function fetchCarData(data) {
     inputValues["fuel_capacity"] = data.capacityTank;
-    } catch (err) {
-    console.error("Erreur récupération car_data:", err);
-    }
 }
 
-async function fetchTire_Data() {
-    try {
-    const res = await fetch("/tire_infos");
-    const data = await res.json();
+async function fetchTire_Data(data) {
     updateDamageTire(data);
     updateTempTire(data);
-    } catch (err) {}
 }
 
 function updateDamageTire(data) {
@@ -935,5 +869,3 @@ function updateTempTire(data) {
     el.textContent = `${info.label} ${info.value.toFixed(2)}`;
     });
 }
-
-setInterval(fetchTire_Data, 500);
