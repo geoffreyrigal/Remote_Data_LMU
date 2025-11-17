@@ -1,0 +1,35 @@
+public enum rF2IgnitionStarterStatus {
+      Off = 0,
+      Ignition = 1,
+      IgnitionAndStarter = 2
+}
+
+
+‎rF2SMMonitor::rFactor2Data::rF2Wheel 
+	==> mBrakeTemp
+‎	==> mLateralForce
+‎	==> mLongitudinalForce
+‎	==> mTireLoad
+‎	==> mPressure
+	==> mSurfaceType
+	==> mFlat
+
+
+‎rF2SMMonitor::rFactor2Data::rF2ScoringInfo
+	// weather
+      public double mDarkCloud;               // cloud darkness? 0.0-1.0
+      public double mRaining;                 // raining severity 0.0-1.0
+      public double mAmbientTemp;             // temperature (Celsius)
+      public double mTrackTemp;               // temperature (Celsius)
+      public rF2Vec3 mWind;                   // wind speed
+      public double mMinPathWetness;          // minimum wetness on main path 0.0-1.0
+      public double mMaxPathWetness;          // maximum wetness on main path 0.0-1.0
+
+      public byte mPitState		      // 0=none, 1=request, 2=entering, 3=stopped, 4=exiting
+      public float mPitLapDist
+      public byte mCountLapFlag
+
+::rFactor2Data::rF2PhysicsOptions
+      public byte mTractionControl;  // 0 (off) - 3 (high)
+      public byte mAntiLockBrakes;   // 0 (off) - 2 (high)
+      public byte mStabilityControl; // 0 (off) - 2 (high)
