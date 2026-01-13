@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>LMU Live Telemetry</title>
-  <link rel="stylesheet" href="static/index.css">
+  <link rel="stylesheet" href="/static/index.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
+
 <body>
   <div class="fixed-head">
     <div class="left_head_side">
@@ -101,36 +102,84 @@
           <canvas id="driverChart" width="600" height="300"></canvas>
         </div>
       </div>
+
+      <div class="gray-box">
+        <h2>Weather, Temperatures and Wind</h2><br>
+        <div id="weather_data">
+          <div id="raining"></div>
+          <div id="minPathWetness"></div>
+          <div id="maxPathWetness"></div>
+          <div id="darkCloud"></div>
+          <div id="ambiantTemp"></div>
+          <div id="trackTemp"></div>
+        </div>
+        <div id="wind_data">
+          <div id="windSpeed"></div>
+          <div id="windDegre"></div>
+          <div id="windDirection"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div id="page_car" class="page-section" style="display:none;">
-    <div class="gray-box">
-      <div class="top">
-        <div class="car_infos">
-            <h2>Car Informations</h2>
-            <div id="car_infos"></div>
-        </div>
-    
-      <div class="car_data">
-          <h2>Car Data</h2>
-          <div id="car_data"></div>
+    <div class="top">
+      <div class="gray-box">
+          <div class="car_infos">
+              <h2>Car Informations</h2>
+              <div id="car_infos"></div>
+          </div>
+      
+          <div class="car_data">
+              <h2>Car Data</h2>
+              <div id="car_data"></div>
+          </div>
+
+          <div class="brakes_info">
+              <h2>Brakes Data</h2>
+              <div id="brakes_data"></div>
+          </div>
+
+          <span>
+            <h2 class="damage_title">Damage on the car</h2>
+            <div id="damageMap" class="car-map">
+              <div class="zone" id="FL">Front Left</div>
+              <div class="zone" id="F">Front Wing</div>
+              <div class="zone" id="FR">Front Right</div>
+              <div class="zone" id="CL">Center Left</div>
+              <div></div>
+              <div class="zone" id="CR">Center Right</div>
+              <div class="zone" id="BL">Back Left</div>
+              <div class="zone" id="R">Rear Wing</div>
+              <div class="zone" id="BR">Back Right</div>
+            </div>
+          </span>
       </div>
-      <span>
-        <h2 class="damage_title">Damage on the car</h2>
-        <div id="damageMap" class="car-map">
-          <div class="zone" id="FL">Front Left</div>
-          <div class="zone" id="F">Front Wing</div>
-          <div class="zone" id="FR">Front Right</div>
-          <div class="zone" id="CL">Center Left</div>
-          <div></div>
-          <div class="zone" id="CR">Center Right</div>
-          <div class="zone" id="BL">Back Left</div>
-          <div class="zone" id="R">Rear Wing</div>
-          <div class="zone" id="BR">Back Right</div>
+    </div>
+
+    <div class="bp_part">
+      <div class="gray-box">
+        <div class="bp_infos">
+          <div>
+            <h2>Front Left Brake Pressure</h2>
+            <canvas id="chartBPFL" width="400" height="300"></canvas>
+          </div>
+          <div>
+            <h2>Front Right Brake Pressure</h2>
+            <canvas id="chartBPFR" width="400" height="300"></canvas>
+          </div>
+        </div>
+        <div class="bp_infos">
+          <div>
+            <h2>Rear Left Brake Pressure</h2>
+            <canvas id="chartBPRL" width="400" height="300"></canvas>
+          </div>
+          <div>
+            <h2>Rear Left Brake Pressure</h2>
+            <canvas id="chartBPRR" width="400" height="300"></canvas>
+          </div>
         </div>
       </div>
-      </span>
     </div>
   </div>
 
@@ -159,20 +208,37 @@
 
   <div id="page_tire" class="page-section" style="display:none;">
     <div class="gray-box">
+      <h2 class="tire_status" style="text-align: center;">Current Tire Informations</h2>
       <div class="currentTires">
-        <h2 class="tire_status">Current Tire Usure</h2>
         <div id="tireMap" class="tire-map">
+          <h3>Tire Wear</h3>
           <div class="" id="average"></div>
           <br>
           <div class="" id="front_Left_Wear"></div>
           <div class="" id="rear_Left_Wear"></div>
           <div class="" id="front_Right_Wear"></div>
           <div class="" id="rear_Right_Wear"></div>
-          <br>
+        </div>
+        <div id="tireMap" class="tire-map">
+          <h3>Tire Temperature</h3><br><br>
           <div class="" id="front_Left_Temp"></div>
           <div class="" id="rear_Left_Temp"></div>
           <div class="" id="front_Right_Temp"></div>
           <div class="" id="rear_Right_Temp"></div>
+        </div>
+        <div id="tireMap" class="tire-map">
+          <h3>Tire Pressure</h3><br><br>
+          <div class="" id="front_Left_Pressure"></div>
+          <div class="" id="front_Right_Pressure"></div>
+          <div class="" id="rear_Left_Pressure"></div>
+          <div class="" id="rear_Right_Pressure"></div>
+        </div>
+        <div id="tireMap" class="tire-map">
+          <h3>Tire Flat</h3><br><br>
+          <div class="" id="front_Left_Flat"></div>
+          <div class="" id="rear_Left_Flat"></div>
+          <div class="" id="front_Right_Flat"></div>
+          <div class="" id="rear_Right_Flat"></div>
         </div>
       </div>
     </div>
@@ -236,6 +302,6 @@
       <canvas id="chartTire" width="1200" height="300"></canvas>
     </div>
   </div>
-  <script src="/static/script_v2.js"></script>
+  <script src="/static/script.js"></script>
 </body>
 </html>

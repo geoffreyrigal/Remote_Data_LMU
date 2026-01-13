@@ -37,7 +37,6 @@ body {
   }
 }
 
-
 .fixed-head {
   position: fixed;
   top: 0;
@@ -169,6 +168,17 @@ h1 {
   margin-left: 4%;
 }
 
+#weather_data {
+  display: flex;
+  justify-content: space-between;
+}
+
+#wind_data {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -237,17 +247,41 @@ td {
   border-radius: 5px;
 }
 
-.top{
+#page_car {
+  display: flex;    /* Force le flex */
+  flex-direction: row;         /* Force la ligne horizontale */
+  flex-wrap: nowrap;           /* INTERDIT le passage à la ligne */
+  justify-content: center;     /* Centre le tout */
+  align-items: flex-start;     /* Aligne en haut */
+  gap: 10px;                   /* VOTRE DEMANDE : 10px max */
+  width: 100%;
+  margin-top: 10px;
+  padding: 0 10px;             /* Une petite marge sur les bords de l'écran */
+}
+
+/* On s'assure que les enfants ne poussent pas trop */
+.top, .bp_part {
+  flex: 0 1 auto; /* Permet aux blocs de garder leur taille naturelle */
+  margin: 0;      /* Enlève les marges parasites */
+}
+
+.top {
   display: flex;
-  justify-content: center;
-  gap: 100px;
-  margin-bottom: 50px;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 0; 
+}
+
+#brakes_data {
+  display: flex;
+  gap: 50px;
 }
 
 .damage_title{
   text-align: center;
   margin-bottom: 0px;
 }
+
 .car-map {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -281,6 +315,18 @@ td {
   padding: 50px;
   border-radius: 8px;
   margin-bottom: 20px;
+}
+
+.bp_part {
+  display: flex;
+  justify-content: space-around;
+  flex: 2;
+}
+
+.bp_infos {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
 }
 
 .practice_inputs {
@@ -341,6 +387,11 @@ td {
   position: relative;
   z-index: 10;
   display: block;
+}
+
+.currentTires {
+  display: flex;
+  justify-content: space-around;
 }
 
 .inputs_category {

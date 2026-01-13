@@ -51,7 +51,9 @@ info = SimInfoAPI()
 cars = info.Rf2Scor.mVehicles
 t = info.playersVehicleTelemetry()
 s = info.playersVehicleScoring()
+e = info.Rf2Ext
 scoring_info = info.Rf2Scor.mScoringInfo
+
 
 classements = ["GT3", "LMP3", "LMP2", "Hyper"]
 error_code = [
@@ -418,6 +420,43 @@ def telemetry():
         direc_live_smooth
     ]
 
+def get_wind_data():
+    wind_rose_map = {
+        (348.75, 11.25): "N",
+        (11.25, 33.75): "NNE",
+        (33.75, 56.25): "NE",
+        (56.25, 78.75): "ENE",
+        (78.75, 101.25): "E",
+        (101.25, 123.75): "ESE",
+        (123.75, 146.25): "SE",
+        (146.25, 168.75): "SSE",
+        (168.75, 191.25): "S",
+        (191.25, 213.75): "SSW",
+        (213.75, 236.25): "SW",
+        (236.25, 258.75): "WSW",
+        (258.75, 281.25): "W",
+        (281.25, 303.75): "WNW",
+        (303.75, 326.25): "NW",
+        (326.25, 348.75): "NNW"
+    }
+
+    wind_speed_raw = math.sqrt((scoring_info.mWind.x**2) + (scoring_info.mWind.z**2))
+    wind_speed = round(wind_speed_raw * 3.6, 1)
+
+    wind_degres = (math.degrees(math.atan2(scoring_info.mWind.x, scoring_info.mWind.z)) + 360) % 360
+    cardinal_result = "N"
+    for (d_min, d_max), name in wind_rose_map.items():
+        if d_min > d_max:
+            if wind_degres >= d_min or wind_degres < d_max:
+                cardinal_result = name
+                break
+        else:
+            if d_min <= wind_degres < d_max:
+                cardinal_result = name
+                break
+
+    return [wind_speed, wind_degres, cardinal_result]
+
 ################################# Info collected #################################
 
 @app.route("/race_dump_info")
@@ -431,6 +470,7 @@ def info_to_update():
     driver_telemetry = telemetry()
     car_infront = isCarInFront()
     car_behind = isCarBehind()
+    wind = get_wind_data()
 
     return {
         ############### Session Infos
@@ -446,6 +486,15 @@ def info_to_update():
         "position": getattr(s, "mPlace", 0),
         "leaderboard": leaderboard(),
         "currentFlag": typeOfFlags(),
+        "darkCloud": scoring_info.mDarkCloud * 100,
+        "raining": scoring_info.mRaining * 100,
+        "minPathWetness": scoring_info.mMinPathWetness * 100,
+        "maxPathWetness": scoring_info.mMaxPathWetness * 100,
+        "ambiantTemp": scoring_info.mAmbientTemp,
+        "trackTemp": scoring_info.mTrackTemp,
+        "windSpeed": wind[0],
+        "windDegre": wind[1],
+        "windDirection": wind[2],
         ############### Timing Infos
         "best_lap": round(getattr(s, "mBestLapTime", 0),3) if getattr(t, "mLapNumber", 0) > 1 else "-",
         "last_lap": round(getattr(s, "mLastLapTime", 0),3) if getattr(t, "mLapNumber", 0) > 1 else "-",
@@ -482,7 +531,7 @@ def info_to_update():
         "rpm": round(getattr(t, "mEngineRPM", 0), 0),
         "gear": getattr(t, "mGear", 0),
         "fuel": round(getattr(t, "mFuel", 0), 1),
-        "headlights": getattr(t, "mHeadlights", 0),
+        "headlights": "On" if getattr(t, "mHeadlights", 0) == 1 else "Off",
         "isOverheating": isOverheating(),
         "speedLimiterAvailable": "True" if getattr(t, "mSpeedLimiterAvailable", 0) == 1 else "false",
         "speedLimiter": "On" if getattr(t, "mSpeedLimiter", 0) == 1 else "Off",
@@ -497,6 +546,10 @@ def info_to_update():
         "oilTemp": round(getattr(t, "mEngineOilTemp", 0),1),
         "waterTemp": round(getattr(t, "mEngineWaterTemp", 0), 1),
         "turboPressure": getattr(t, "mTurboBoostPresure", 0),
+        "ignitionStatus": "Off" if t.mIgnitionStarter == 0 else "Ign Only" if t.mIgnitionStarter == 1 else "Ign + Str",
+        "tc": e.mPhysics.mTractionControl,
+        "abs": e.mPhysics.mAntiLockBrakes,
+        "stabilityCtrl": e.mPhysics.mStabilityControl,
         ############### Driver Inputs
         "live_throttle": driver_telemetry[0],
         "live_brake": driver_telemetry[1],
@@ -504,16 +557,46 @@ def info_to_update():
         "live_throttle_smooth": driver_telemetry[3],
         "live_brake_smooth": driver_telemetry[4],
         "live_direc_smooth": driver_telemetry[5],
-        ############### Tire Wear
-        "front_Left_Wear": t.mWheels[0].mWear,
-        "front_Right_Wear": t.mWheels[1].mWear,
-        "rear_Left_Wear": t.mWheels[2].mWear,
-        "rear_Right_Wear": t.mWheels[3].mWear,
         ############### Tire Temperature
         "front_Left_Temp": fahrenheit_to_celsius((t.mWheels[0].mTemperature[0] + t.mWheels[0].mTemperature[1] + t.mWheels[0].mTemperature[2]) / 3),
         "front_Right_Temp": fahrenheit_to_celsius((t.mWheels[1].mTemperature[0] + t.mWheels[1].mTemperature[1] + t.mWheels[1].mTemperature[2]) / 3),
         "rear_Left_Temp": fahrenheit_to_celsius((t.mWheels[2].mTemperature[0] + t.mWheels[2].mTemperature[1] + t.mWheels[2].mTemperature[2]) / 3),
         "rear_Right_Temp": fahrenheit_to_celsius((t.mWheels[3].mTemperature[0] + t.mWheels[3].mTemperature[1] + t.mWheels[3].mTemperature[2]) / 3),
+        ############### Brake Temperature
+        "front_Left_Break_Temp": t.mWheels[0].mBrakeTemp,
+        "front_Right_Break_Temp": t.mWheels[1].mBrakeTemp,
+        "rear_Left_Break_Temp": t.mWheels[2].mBrakeTemp,
+        "rear_Right_Break_Temp": t.mWheels[3].mBrakeTemp,
+        ############### Brake Pressure
+        "front_Left_Break_Press": t.mWheels[0].mBrakePressure * 100,
+        "front_Right_Break_Press": t.mWheels[1].mBrakePressure * 100,
+        "rear_Left_Break_Press": t.mWheels[2].mBrakePressure * 100,
+        "rear_Right_Break_Press": t.mWheels[3].mBrakePressure * 100,
+        ############### Lateral Force
+        "front_Left_Lat_Force": t.mWheels[0].mLateralForce,
+        "front_Right_Lat_Force": t.mWheels[1].mLateralForce,
+        "rear_Left_Lat_Force": t.mWheels[2].mLateralForce,
+        "rear_Right_Lat_Force": t.mWheels[3].mLateralForce,
+        ############### Longetudinal Force
+        "front_Left_Long_Force": t.mWheels[0].mLongitudinalForce,
+        "front_Right_Long_Force": t.mWheels[1].mLongitudinalForce,
+        "rear_Left_Long_Force": t.mWheels[2].mLongitudinalForce,
+        "rear_Right_Long_Force": t.mWheels[3].mLongitudinalForce,
+        ############### Tire Wear
+        "front_Left_Wear": t.mWheels[0].mWear,
+        "front_Right_Wear": t.mWheels[1].mWear,
+        "rear_Left_Wear": t.mWheels[2].mWear,
+        "rear_Right_Wear": t.mWheels[3].mWear,
+        ############### Tire Pressure
+        "front_Left_Pressure": t.mWheels[0].mPressure * 0.1450377377,
+        "front_Right_Pressure": t.mWheels[1].mPressure * 0.1450377377,
+        "rear_Left_Pressure": t.mWheels[2].mPressure * 0.1450377377,
+        "rear_Right_Pressure": t.mWheels[3].mPressure * 0.1450377377,
+        ############### Tire Flat
+        "front_Left_Flat": t.mWheels[0].mFlat,
+        "front_Right_Flat": t.mWheels[1].mFlat,
+        "rear_Left_Flat": t.mWheels[2].mFlat,
+        "rear_Right_Flat": t.mWheels[3].mFlat,
     }
 
 ###############################################################################
@@ -540,6 +623,7 @@ if __name__ == "__main__":
 
 ################################# Practice Session ################################# To work on
 
+"""
 avg_temp_tire = []
 prog1_result = []
 
@@ -587,7 +671,7 @@ def prog1():
         print("FLAG NEW LAP 1")
         print(f"Nouveau tour détecté : {current_lap}")
 
-        # S’exécute uniquement à la fin du tout premier tour de mesure
+        # S'exécute uniquement à la fin du tout premier tour de mesure
         if not first_lap and not first_measured_lap_done:
             print("FLAG NEW LAP 2")
             tire_usage = [initial_tire_usage[i] - t.mWheels[i].mWear for i in range(4)]
@@ -677,3 +761,5 @@ def practice_data():
         "tireWear_RR": t.mWheels[3].mWear,
         "isPractice": get_session()
     })
+
+"""

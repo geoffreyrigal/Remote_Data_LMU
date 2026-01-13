@@ -12,7 +12,15 @@ function showPage(name) {
     section.style.display = 'none';
     });
     const activePage = document.getElementById("page_" + name);
-    if (activePage) activePage.style.display = 'block';
+    
+    if (activePage) {
+        // MODIFICATION ICI : On vérifie si c'est la page 'car' pour mettre 'flex'
+        if (name === 'car') {
+            activePage.style.display = 'flex';
+        } else {
+            activePage.style.display = 'block';
+        }
+    }
 
     document.querySelectorAll('.page-button').forEach(btn => {
     btn.classList.remove('active-button');
@@ -50,9 +58,13 @@ function updateData(data){
     fetchSectorTimes(data);
     fetchLeaderboard(data);
     updateLapGraph(data);
+    fetchWeather_Status(data);
+    fetchWind_Status(data);
     // Page 2
     fetchCar_Infos(data);
     fetchCar_Data(data);
+    fetchBrakes_Data(data);
+    updateBrakeGraph(data);
     // Page 3
     updateDriverGraph(data);
     // Page 4
@@ -360,6 +372,25 @@ const lapChart = new Chart(ctx, {
     }
 });
 
+async function fetchWeather_Status(data) {
+    document.getElementById("weather_data").innerHTML = `
+        <div class="weather-item"><strong>Rain Severity:</strong> <span>${data.raining}%</span></div>
+        <div class="weather-item"><strong>Min Path Wetness:</strong> <span>${data.minPathWetness}%</span></div>
+        <div class="weather-item"><strong>Max Path Wetness:</strong> <span>${data.maxPathWetness}%</span></div>
+        <div class="weather-item"><strong>Cloud Darkness:</strong> <span>${data.darkCloud}%</span></div>
+        <div class="weather-item"><strong>Ambiant Temperature:</strong> <span>${data.ambiantTemp}°C</span></div>
+        <div class="weather-item"><strong>Track Temperature:</strong> <span>${data.trackTemp}°C</span></div>
+    `;
+}
+
+async function fetchWind_Status(data) {
+    document.getElementById("wind_data").innerHTML = `
+        <div class="weather-item"><strong>Wind Speed:</strong> <span>${data.windSpeed} km/h</span></div>
+        <div class="weather-item"><strong>Wind Direction:</strong> <span>${data.windDegre}°</span></div>
+        <div class="weather-item"><strong>Wind Cardinal:</strong> <span>${data.windDirection}</span></div>
+    `;
+}
+
 // ----------------------- Car Data --------------------------- //
 
 async function fetchCar_Infos(data) {
@@ -381,6 +412,7 @@ async function fetchCar_Data(data) {
     updateDamageMap(data);
 
     document.getElementById("car_data").innerHTML = `
+        <strong>Ignition Status:</strong> ${data.ignitionStatus}<br>
         <strong>Oil Temperature:</strong> ${data.oilTemp}°C<br>
         <strong>Water Temperature:</strong> ${data.waterTemp}°C<br>
         <strong>Status Overheating:</strong> ${data.isOverheating}<br>
@@ -389,6 +421,14 @@ async function fetchCar_Data(data) {
         <strong>Fuel Used For Previous Lap:</strong> ${data.fuelUsedLastLap}<br>
         <strong>Average Fuel/Lap:</strong> ${data.fuelUsedAverage}<br>
         <strong>Estimated Laps Until Tank Empty:</strong> ${data.fuelEstimation}<br>
+    `;
+}
+
+async function fetchBrakes_Data(data) {
+
+    document.getElementById("brakes_data").innerHTML = `
+        <div><strong>Temperature :</strong><br>    FL : ${data.front_Left_Break_Temp}°C<br>    FR : ${data.front_Right_Break_Temp}°C<br>    RL : ${data.rear_Left_Break_Temp}°C<br>    RR : ${data.rear_Right_Break_Temp}°C</div>
+        <div><strong>Pressure :</strong><br>    FL : ${data.front_Left_Break_Press}<br>    FR : ${data.front_Right_Break_Press}<br>    RL : ${data.rear_Left_Break_Press}<br>    RR : ${data.rear_Right_Break_Press}</div>
     `;
 }
 
@@ -417,6 +457,138 @@ function updateDamageMap(data) {
     } else {
         el.classList.add("low-damage");
     }
+    });
+}
+
+const maxPoints_bp = 100;
+let tickCounter_bp = 0;
+
+const ctxBrakePress_fl = document.getElementById('chartBPFL').getContext('2d');
+const chartBPFL = new Chart(ctxBrakePress_fl, {
+    type: 'line',
+    data: {
+    labels: [],
+    datasets: [
+        {
+        label: 'Front Left Brake Pressure',
+        data: [],
+        borderColor: 'rgba(255, 255, 255, 1)',
+        fill: false
+        }
+    ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+        y: {
+            beginAtZero: true,
+            max: 100,
+        },
+        }
+    }
+});
+
+const ctxBrakePress_fr = document.getElementById('chartBPFR').getContext('2d');
+const chartBPFR = new Chart(ctxBrakePress_fr, {
+    type: 'line',
+    data: {
+    labels: [],
+    datasets: [
+        {
+        label: 'Front Right Brake Pressure',
+        data: [],
+        borderColor: 'rgba(255, 255, 255, 1)',
+        fill: false
+        }
+    ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+        y: {
+            beginAtZero: true,
+            max: 100,
+        },
+        }
+    }
+});
+
+const ctxBrakePress_rl = document.getElementById('chartBPRL').getContext('2d');
+const chartBPRL = new Chart(ctxBrakePress_rl, {
+    type: 'line',
+    data: {
+    labels: [],
+    datasets: [
+        {
+        label: 'Rear Left Brake Pressure',
+        data: [],
+        borderColor: 'rgba(255, 255, 255, 1)',
+        fill: false
+        }
+    ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+        y: {
+            beginAtZero: true,
+            max: 100,
+        },
+        }
+    }
+});
+
+const ctxBrakePress_rr = document.getElementById('chartBPRR').getContext('2d');
+const chartBPRR = new Chart(ctxBrakePress_rr, {
+    type: 'line',
+    data: {
+    labels: [],
+    datasets: [
+        {
+        label: 'Rear Right Brake Pressure',
+        data: [],
+        borderColor: 'rgba(255, 255, 255, 1)',
+        fill: false
+        }
+    ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+        y: {
+            beginAtZero: true,
+            max: 100,
+        },
+        }
+    }
+});
+
+async function updateBrakeGraph(data) {
+    if (data.status === "not ready") return;
+
+    const bpfl = data.front_Left_Break_Press;
+    const bpfr = data.front_Right_Break_Press;
+    const bprl = data.rear_Left_Break_Press;
+    const bprr = data.rear_Right_Break_Press;
+
+    const label = `t+${tickCounter_bp++}`;
+
+    [chartBPFL, chartBPFR, chartBPRL, chartBPRR].forEach(chart => {
+    chart.data.labels.push(label);
+    });
+
+    chartBPFL.data.datasets[0].data.push(bpfl);
+    chartBPFR.data.datasets[0].data.push(bpfr);
+    chartBPRL.data.datasets[0].data.push(bprl);
+    chartBPRR.data.datasets[0].data.push(bprr);
+
+
+    [chartBPFL, chartBPFR, chartBPRL, chartBPRR].forEach(chart => {
+    while (chart.data.labels.length > maxPoints_bp) {
+        chart.data.labels.shift();
+        chart.data.datasets.forEach(ds => ds.data.shift());
+    }
+    chart.update();
     });
 }
 
@@ -712,11 +884,10 @@ function updateTireSimulation() {
     chartTire.update();
 
     let fuellevel = inputValues["fuelselected"];
-    console.log(fuellevel)
     const fuelCapacity = inputValues["capacityTank"];
-    console.log(fuelCapacity)
 
     let dead_fuel_lap = 0;
+    console.log(inputValues)
     while (fuellevel > 0) {
     fuellevel -= ((inputValues["prog_fuel_used"] * 100) / fuelCapacity) * paceFactor;
     datafuel.push(Math.max(fuellevel, 0));
@@ -837,6 +1008,8 @@ async function fetchCarData(data) {
 async function fetchTire_Data(data) {
     updateDamageTire(data);
     updateTempTire(data);
+    updatePressTire(data);
+    updateFlatTire(data);
 }
 
 function updateDamageTire(data) {
@@ -869,3 +1042,36 @@ function updateTempTire(data) {
     el.textContent = `${info.label} ${info.value.toFixed(2)}`;
     });
 }
+
+function updatePressTire(data) {
+    const zone_press = {
+    "front_Left_Pressure": { label: "Front Left Tire Pressure (bar) = ", value: data.front_Left_Pressure },
+    "front_Right_Pressure": { label: "Front Right Tire Pressure = ", value: data.front_Right_Pressure },
+    "rear_Left_Pressure": { label: "Rear Left Tire Pressure = ", value: data.rear_Left_Pressure },
+    "rear_Right_Pressure": { label: "Rear Right Tire Pressure = ", value: data.rear_Right_Pressure },
+    };
+
+    Object.entries(zone_press).forEach(([id, info]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = `${info.label} ${info.value.toFixed(2)}`;
+    });
+}
+
+function updateFlatTire(data) {
+    const zone_flat = {
+    "front_Left_Flat": { label: "Front Left Tire Flat = ", value: data.front_Left_Flat },
+    "front_Right_Flat": { label: "Front Right Tire Flat = ", value: data.front_Right_Flat },
+    "rear_Left_Flat": { label: "Rear Left Tire Flat = ", value: data.rear_Left_Flat },
+    "rear_Right_Flat": { label: "Rear Right Tire Flat = ", value: data.rear_Right_Flat },
+    };
+
+    Object.entries(zone_flat).forEach(([id, info]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = `${info.label} ${info.value.toFixed(2)}`;
+    });
+}
+
+/* To add : Lateral Force, Longetudinal Force, tc, abs, stab ctrl */
+/* To do : Set time limit on brake pressure, round brake temp, abiant track temp and fix brake press, fix tire flat (not 0/1 but Yes / No)*/
