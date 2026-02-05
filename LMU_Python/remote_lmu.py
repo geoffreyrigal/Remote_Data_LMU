@@ -154,7 +154,7 @@ def get_flag():
     elif s.mFlag == 0:
         current_flag = "GREEN"
         if not current_flag == previous_flag:
-            status, text = set_color(0, 255, 0)
+            status, text = set_color(0, 0, 0)
             if status == 421:
                 print(error_code[1]) 
             previous_flag = current_flag
@@ -490,8 +490,8 @@ def info_to_update():
         "raining": scoring_info.mRaining * 100,
         "minPathWetness": scoring_info.mMinPathWetness * 100,
         "maxPathWetness": scoring_info.mMaxPathWetness * 100,
-        "ambiantTemp": scoring_info.mAmbientTemp,
-        "trackTemp": scoring_info.mTrackTemp,
+        "ambiantTemp": round(scoring_info.mAmbientTemp,1),
+        "trackTemp": round(scoring_info.mTrackTemp,1),
         "windSpeed": wind[0],
         "windDegre": wind[1],
         "windDirection": wind[2],
@@ -563,15 +563,15 @@ def info_to_update():
         "rear_Left_Temp": fahrenheit_to_celsius((t.mWheels[2].mTemperature[0] + t.mWheels[2].mTemperature[1] + t.mWheels[2].mTemperature[2]) / 3),
         "rear_Right_Temp": fahrenheit_to_celsius((t.mWheels[3].mTemperature[0] + t.mWheels[3].mTemperature[1] + t.mWheels[3].mTemperature[2]) / 3),
         ############### Brake Temperature
-        "front_Left_Break_Temp": t.mWheels[0].mBrakeTemp,
-        "front_Right_Break_Temp": t.mWheels[1].mBrakeTemp,
-        "rear_Left_Break_Temp": t.mWheels[2].mBrakeTemp,
-        "rear_Right_Break_Temp": t.mWheels[3].mBrakeTemp,
+        "front_Left_Break_Temp": round(t.mWheels[0].mBrakeTemp,1),
+        "front_Right_Break_Temp": round(t.mWheels[1].mBrakeTemp,1),
+        "rear_Left_Break_Temp": round(t.mWheels[2].mBrakeTemp,1),
+        "rear_Right_Break_Temp": round(t.mWheels[3].mBrakeTemp,1),
         ############### Brake Pressure
-        "front_Left_Break_Press": t.mWheels[0].mBrakePressure * 100,
-        "front_Right_Break_Press": t.mWheels[1].mBrakePressure * 100,
-        "rear_Left_Break_Press": t.mWheels[2].mBrakePressure * 100,
-        "rear_Right_Break_Press": t.mWheels[3].mBrakePressure * 100,
+        "front_Left_Break_Press": round(t.mWheels[0].mBrakePressure * 100, 1),
+        "front_Right_Break_Press": round(t.mWheels[1].mBrakePressure * 100, 1),
+        "rear_Left_Break_Press": round(t.mWheels[2].mBrakePressure * 100, 1),
+        "rear_Right_Break_Press": round(t.mWheels[3].mBrakePressure * 100, 1),
         ############### Lateral Force
         "front_Left_Lat_Force": t.mWheels[0].mLateralForce,
         "front_Right_Lat_Force": t.mWheels[1].mLateralForce,
@@ -593,10 +593,10 @@ def info_to_update():
         "rear_Left_Pressure": t.mWheels[2].mPressure * 0.1450377377,
         "rear_Right_Pressure": t.mWheels[3].mPressure * 0.1450377377,
         ############### Tire Flat
-        "front_Left_Flat": t.mWheels[0].mFlat,
-        "front_Right_Flat": t.mWheels[1].mFlat,
-        "rear_Left_Flat": t.mWheels[2].mFlat,
-        "rear_Right_Flat": t.mWheels[3].mFlat,
+        "front_Left_Flat": "Ok" if t.mWheels[0].mFlat == 0 else "Puncture !",
+        "front_Right_Flat": "Ok" if t.mWheels[1].mFlat == 0 else "Puncture !",
+        "rear_Left_Flat": "Ok" if t.mWheels[2].mFlat == 0 else "Puncture !",
+        "rear_Right_Flat": "Ok" if t.mWheels[3].mFlat == 0 else "Puncture !",
     }
 
 ###############################################################################
@@ -613,7 +613,7 @@ def diagnostic():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=False)
+    app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=True)
 
 #https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin/blob/master/Monitor/rF2SMMonitor/rF2SMMonitor/rF2Data.cs
 #https://github.com/TonyWhitley/pyRfactor2SharedMemory
