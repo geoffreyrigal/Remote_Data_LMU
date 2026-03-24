@@ -1075,4 +1075,4 @@ function updateFlatTire(data) {
 }
 
 /* To add : Lateral Force, Longetudinal Force, tc, abs, stab ctrl */
-/* To do : Set time limit on brake pressure, round brake temp, abiant track temp and fix brake press, fix tire flat (not 0/1 but Yes / No)*/
+/* To do : Set time limit on brake pressure, fix brake press*/
