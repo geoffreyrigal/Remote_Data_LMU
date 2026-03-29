@@ -2,20 +2,20 @@ bib = ["sys", "time", "flask", "flask_cors", "math", "numpy", "threading", "requ
 try:
     import os
 except ImportWarning:
-    print("Veuillez installer la bib 'os' ==> pip install os")
+    print("ERROR - Veuillez installer la bib 'os' ==> pip install os")
 
 for elem in bib:
     try:
         __import__(elem)
-        print(f"{elem} est installé avec succès")
+        print(f"INFO - {elem} est installé avec succès")
     except ImportError:
-        choix = str(input(f"{elem}, n'est pas installé sur la machine. Souhaitez vous l'installer ? Y/N"))
+        choix = str(input(f"WARNING - {elem}, n'est pas installé sur la machine. Souhaitez vous l'installer ? Y/N"))
         if choix == "Y" or choix == "y":
             os.system(f"pip install {elem}")
         elif choix == "N" or choix == "n":
-            print("Le programme est fortement suceptible de ne pas marcher")
+            print("ERROR - Le programme est fortement suceptible de ne pas marcher")
         else:
-            print("Réponse invalide, veuillez recommencer.")
+            print("ERROR - Réponse invalide, veuillez recommencer.")
             exit()
 
 import sys
@@ -136,7 +136,7 @@ def get_flag():
         if not current_flag == previous_flag:
             status, text = set_color(255, 0, 255)
             if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
     
@@ -147,7 +147,7 @@ def get_flag():
             time.sleep(1)
             status, text = set_color(0, 0, 0)
             if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
 
@@ -156,16 +156,7 @@ def get_flag():
         if not current_flag == previous_flag:
             status, text = set_color(0, 0, 0)
             if status == 421:
-                print(error_code[1]) 
-            previous_flag = current_flag
-        return current_flag
-        
-    elif s.mFlag == 6:
-        current_flag = "BLUE"
-        if not current_flag == previous_flag:
-            status, text = set_color(0, 0, 255)
-            if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
         
@@ -174,14 +165,23 @@ def get_flag():
         if not current_flag == previous_flag:
             status, text = set_color(255, 255, 0)
             if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
+            previous_flag = current_flag
+        return current_flag
+
+    elif s.mFlag == 6:
+        current_flag = "BLUE"
+        if not current_flag == previous_flag:
+            status, text = set_color(0, 0, 255)
+            if status == 421:
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
 
     else:
         if not current_flag == previous_flag:
             current_flag = s.mFlag
-            print(error_code[2])
+            print("WARNING - " + error_code[2])
             previous_flag = current_flag
         return current_flag
     
@@ -613,7 +613,7 @@ def diagnostic():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=True)
+    app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'))
 
 #https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin/blob/master/Monitor/rF2SMMonitor/rF2SMMonitor/rF2Data.cs
 #https://github.com/TonyWhitley/pyRfactor2SharedMemory
