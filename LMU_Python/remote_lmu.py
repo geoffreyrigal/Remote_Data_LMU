@@ -1,15 +1,16 @@
 bib = ["sys", "time", "flask", "flask_cors", "math", "numpy", "threading", "requests", "psutil"]
 try:
     import os
+    import subprocess
 except ImportWarning:
-    print("Veuillez installer la bib 'os' ==> pip install os")
+    print("Veuillez installer la bib 'os' et/ou 'subprocess' ==> pip install os/subprocess")
 
 for elem in bib:
     try:
         __import__(elem)
         print(f"{elem} est installé avec succès")
     except ImportError:
-        choix = str(input(f"{elem}, n'est pas installé sur la machine. Souhaitez vous l'installer ? Y/N"))
+        choix = str(input(f"{elem}, n'est pas installé sur la machine. Souhaitez vous l'installer ? Y/N : "))
         if choix == "Y" or choix == "y":
             os.system(f"pip install {elem}")
         elif choix == "N" or choix == "n":
@@ -65,6 +66,7 @@ error_code = [
 
 current_flag = ""
 previous_flag = ""
+GRAVITY = 9.81
 
 ################################# Govee Function #################################
 """
@@ -572,16 +574,9 @@ def info_to_update():
         "front_Right_Break_Press": t.mWheels[1].mBrakePressure * 100,
         "rear_Left_Break_Press": t.mWheels[2].mBrakePressure * 100,
         "rear_Right_Break_Press": t.mWheels[3].mBrakePressure * 100,
-        ############### Lateral Force
-        "front_Left_Lat_Force": t.mWheels[0].mLateralForce,
-        "front_Right_Lat_Force": t.mWheels[1].mLateralForce,
-        "rear_Left_Lat_Force": t.mWheels[2].mLateralForce,
-        "rear_Right_Lat_Force": t.mWheels[3].mLateralForce,
-        ############### Longetudinal Force
-        "front_Left_Long_Force": t.mWheels[0].mLongitudinalForce,
-        "front_Right_Long_Force": t.mWheels[1].mLongitudinalForce,
-        "rear_Left_Long_Force": t.mWheels[2].mLongitudinalForce,
-        "rear_Right_Long_Force": t.mWheels[3].mLongitudinalForce,
+        ############### G Forces
+        "lateral_G_force": t.mLocalAccel.x / GRAVITY,
+        "longitudinal_G_force": t.mLocalAccel.z / GRAVITY,
         ############### Tire Wear
         "front_Left_Wear": t.mWheels[0].mWear,
         "front_Right_Wear": t.mWheels[1].mWear,
@@ -613,7 +608,7 @@ def diagnostic():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=False)
+    app.run(host="0.0.0.0", port=5000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=False)
 
 #https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin/blob/master/Monitor/rF2SMMonitor/rF2SMMonitor/rF2Data.cs
 #https://github.com/TonyWhitley/pyRfactor2SharedMemory

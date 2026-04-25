@@ -14,7 +14,6 @@ function showPage(name) {
     const activePage = document.getElementById("page_" + name);
     
     if (activePage) {
-        // MODIFICATION ICI : On vérifie si c'est la page 'car' pour mettre 'flex'
         if (name === 'car') {
             activePage.style.display = 'flex';
         } else {
@@ -460,7 +459,8 @@ function updateDamageMap(data) {
     });
 }
 
-const maxPoints_bp = 100;
+
+const maxPoints_bp = 20;
 let tickCounter_bp = 0;
 
 const ctxBrakePress_fl = document.getElementById('chartBPFL').getContext('2d');
@@ -478,7 +478,7 @@ const chartBPFL = new Chart(ctxBrakePress_fl, {
     ]
     },
     options: {
-        responsive: true,
+        responsive: false,
         scales: {
         y: {
             beginAtZero: true,
@@ -503,7 +503,7 @@ const chartBPFR = new Chart(ctxBrakePress_fr, {
     ]
     },
     options: {
-        responsive: true,
+        responsive: false,
         scales: {
         y: {
             beginAtZero: true,
@@ -528,7 +528,7 @@ const chartBPRL = new Chart(ctxBrakePress_rl, {
     ]
     },
     options: {
-        responsive: true,
+        responsive: false,
         scales: {
         y: {
             beginAtZero: true,
@@ -553,7 +553,7 @@ const chartBPRR = new Chart(ctxBrakePress_rr, {
     ]
     },
     options: {
-        responsive: true,
+        responsive: false,
         scales: {
         y: {
             beginAtZero: true,
@@ -563,6 +563,42 @@ const chartBPRR = new Chart(ctxBrakePress_rr, {
     }
 });
 
+const ctxForce = document.getElementById('chartForce').getContext('2d');
+let chartForce = new Chart(ctxForce, {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'Live G-Force',
+            data: [{x: 0, y: 0}],
+            backgroundColor: 'red',
+            pointRadius: 6,
+            pointHoverRadius: 8,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            x: {
+                min: -5,
+                max: 5,
+                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                title: { display: true, text: 'Latéral (G)' }
+            },
+            y: {
+                min: -5,
+                max: 5,
+                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                title: { display: true, text: 'Longitudinal (G)' }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+
 async function updateBrakeGraph(data) {
     if (data.status === "not ready") return;
 
@@ -571,7 +607,7 @@ async function updateBrakeGraph(data) {
     const bprl = data.rear_Left_Break_Press;
     const bprr = data.rear_Right_Break_Press;
 
-    const label = `t+${tickCounter_bp++}`;
+    const label = ``;
 
     [chartBPFL, chartBPFR, chartBPRL, chartBPRR].forEach(chart => {
     chart.data.labels.push(label);
@@ -591,6 +627,15 @@ async function updateBrakeGraph(data) {
     chart.update();
     });
 }
+
+async function updateForceGraph(data) {
+    if (data.status === "not ready") return;
+    const lat = data.latG;
+    const long = data.longG;
+    chartForce.data.datasets[0].data = [{x: lat, y: long}];
+    chartForce.update();
+}
+
 
 // ----------------------- Page 3 : Driver Data --------------------------- //
 const maxPoints = 100;
@@ -1073,5 +1118,5 @@ function updateFlatTire(data) {
     });
 }
 
-/* To add : Lateral Force, Longetudinal Force, tc, abs, stab ctrl */
-/* To do : Set time limit on brake pressure, fix brake press*/
+/* To add : G Forces, tc, abs, stab ctrl, switch of background image */
+/* To do : fix brake press*/

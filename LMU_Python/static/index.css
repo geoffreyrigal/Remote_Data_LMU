@@ -317,6 +317,11 @@ td {
   margin-bottom: 20px;
 }
 
+.carRightPart {
+  display: flex;
+  flex-direction: column;
+}
+
 .bp_part {
   display: flex;
   justify-content: space-around;
@@ -327,6 +332,12 @@ td {
   display: flex;
   justify-content: space-between;
   gap: 50px;
+}
+
+.force_part {
+    position: relative; 
+    height: 300px;
+    width: 100%;
 }
 
 .practice_inputs {

@@ -1,46 +1,67 @@
+bib = ["sys", "time", "flask", "flask_cors", "math", "numpy", "threading", "requests", "psutil"]
+try:
+    import os
+    import subprocess
+except ImportWarning:
+    print("Veuillez installer la bib 'os' et/ou 'subprocess' ==> pip install os/subprocess")
+
 import sys
-sys.path.append(r"C:\Users\geoff\Desktop\Informatique\lmu\pyRfactor2SharedMemory")
+project_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+sys.path.append(f"{project_path}\\..\\pyRfactor2SharedMemory")
 import time
 from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
 from sharedMemoryAPI import SimInfoAPI # type: ignore
 import math
 import numpy as np
-import csv
 import os
-import ctypes
-import mmap
-import struct
-import subprocess
 import threading
 import requests
 
-app = Flask(__name__)
+os.chdir(project_path)
+API_KEY = "c21f29f8-5d60-44dc-920a-984bee09df9a"
+DEVICE = "08:03:D0:C9:07:0C:1F:BE"
+BASE_URL = "https://developer-api.govee.com/v1"
+MODEL = "H6008"
+HEADERS = {
+    "Govee-API-Key": API_KEY,
+    "Content-Type": "application/json"
+}
+
+app = Flask(__name__, static_folder="static")
 CORS(app)
-info = SimInfoAPI()
 script_running = False
 script_thread = None
 
+################################# Global Variables #################################
+info = SimInfoAPI()
 cars = info.Rf2Scor.mVehicles
 t = info.playersVehicleTelemetry()
 s = info.playersVehicleScoring()
-scoring_info = info.Rf2Scor.mScoringInfo
 e = info.Rf2Ext
+scoring_info = info.Rf2Scor.mScoringInfo
 
 
-"""# Vérification dans le bloc étendu brut
-import struct
+classements = ["GT3", "LMP3", "LMP2", "Hyper"]
+error_code = [
+    "Plugins not connected",
+    "Too many Govee requests",
+    "Uknown flag",
+    "Error during getting data"
+    ]
 
-# On accède au bloc mmap brut que vous avez trouvé
-raw_data = info._rf2_ext
+current_flag = ""
+previous_flag = ""
 
-# On lit 1 octet (c_byte) à l'index 1084 (Offset pour mInCarTC)
-in_car_tc = struct.unpack('b', raw_data[1084:1085])[0]
+while True:
+    # 1. On récupère la télémétrie fraîche
+    t = info.playersVehicleTelemetry()
+    
+    # 2. On esquive le blocage des développeurs en utilisant les forces G du châssis !
+    vehicle_forces = {
+        "lateral_G_force": t.mLocalAccel.x,     # Force dans les virages
+        "longitudinal_G_force": t.mLocalAccel.z # Force au freinage et à l'accélération
+    }
 
-# On lit 1 octet à l'index 1085 (Offset pour mInCarABS)
-in_car_abs = struct.unpack('b', raw_data[1085:1086])[0]
-
-print(f"TC Voiture (Brut) : {in_car_tc}")
-print(f"ABS Voiture (Brut) : {in_car_abs}")"""
-
-print(t.mWheels[0].mLateralForce)
+    print(vehicle_forces)
+    time.sleep(1)
