@@ -44,7 +44,7 @@ async function getData() {
     }    
 }
 
-setInterval(getData, 1000);
+setInterval(getData, 50);
 
 function updateData(data){
     // All pages
@@ -424,10 +424,11 @@ async function fetchCar_Data(data) {
 }
 
 async function fetchBrakes_Data(data) {
-
+    let cfrb = 100 / (data.front_Left_Break_Press + 0.0000000001)
+    let crrb = 100 / (data.front_Left_Break_Press + 0.0000000001)
     document.getElementById("brakes_data").innerHTML = `
         <div><strong>Temperature :</strong><br>    FL : ${data.front_Left_Break_Temp}°C<br>    FR : ${data.front_Right_Break_Temp}°C<br>    RL : ${data.rear_Left_Break_Temp}°C<br>    RR : ${data.rear_Right_Break_Temp}°C</div>
-        <div><strong>Pressure :</strong><br>    FL : ${data.front_Left_Break_Press}<br>    FR : ${data.front_Right_Break_Press}<br>    RL : ${data.rear_Left_Break_Press}<br>    RR : ${data.rear_Right_Break_Press}</div>
+        <div><strong>Pressure :</strong><br>    FL : ${data.front_Left_Break_Press * cfrb}<br>    FR : ${data.front_Right_Break_Press * cfrb}<br>    RL : ${data.rear_Left_Break_Press * crrb}<br>    RR : ${data.rear_Right_Break_Press * crrb}</div>
     `;
 }
 
@@ -602,10 +603,10 @@ let chartForce = new Chart(ctxForce, {
 async function updateBrakeGraph(data) {
     if (data.status === "not ready") return;
 
-    const bpfl = data.front_Left_Break_Press;
-    const bpfr = data.front_Right_Break_Press;
-    const bprl = data.rear_Left_Break_Press;
-    const bprr = data.rear_Right_Break_Press;
+    const bpfl = data.front_Left_Break_Press * (100 / (data.front_Left_Break_Press + 0.0000000001));
+    const bpfr = data.front_Right_Break_Press * (100 / (data.front_Left_Break_Press + 0.0000000001));
+    const bprl = data.rear_Left_Break_Press * (100 / (data.front_Left_Break_Press + 0.0000000001));
+    const bprr = data.rear_Right_Break_Press * (100 / (data.front_Left_Break_Press + 0.0000000001));
 
     const label = ``;
 
@@ -1091,9 +1092,9 @@ function updateTempTire(data) {
 function updatePressTire(data) {
     const zone_press = {
     "front_Left_Pressure": { label: "Front Left Tire Pressure (bar) = ", value: data.front_Left_Pressure },
-    "front_Right_Pressure": { label: "Front Right Tire Pressure = ", value: data.front_Right_Pressure },
-    "rear_Left_Pressure": { label: "Rear Left Tire Pressure = ", value: data.rear_Left_Pressure },
-    "rear_Right_Pressure": { label: "Rear Right Tire Pressure = ", value: data.rear_Right_Pressure },
+    "front_Right_Pressure": { label: "Front Right Tire Pressure (bar) = ", value: data.front_Right_Pressure },
+    "rear_Left_Pressure": { label: "Rear Left Tire Pressure (bar) = ", value: data.rear_Left_Pressure },
+    "rear_Right_Pressure": { label: "Rear Right Tire Pressure (bar) = ", value: data.rear_Right_Pressure },
     };
 
     Object.entries(zone_press).forEach(([id, info]) => {
@@ -1114,7 +1115,7 @@ function updateFlatTire(data) {
     Object.entries(zone_flat).forEach(([id, info]) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.textContent = `${info.label} ${info.value.toFixed(2)}`;
+    el.textContent = `${info.label}`;
     });
 }
 

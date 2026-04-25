@@ -3,20 +3,20 @@ try:
     import os
     import subprocess
 except ImportWarning:
-    print("Veuillez installer la bib 'os' et/ou 'subprocess' ==> pip install os/subprocess")
+    print("ERROR - Veuillez installer la bib 'os' ==> pip install os")
 
 for elem in bib:
     try:
         __import__(elem)
-        print(f"{elem} est installé avec succès")
+        print(f"INFO - {elem} est installé avec succès")
     except ImportError:
-        choix = str(input(f"{elem}, n'est pas installé sur la machine. Souhaitez vous l'installer ? Y/N : "))
+        choix = str(input(f"WARNING - {elem}, n'est pas installé sur la machine. Souhaitez vous l'installer ? Y/N"))
         if choix == "Y" or choix == "y":
             os.system(f"pip install {elem}")
         elif choix == "N" or choix == "n":
-            print("Le programme est fortement suceptible de ne pas marcher")
+            print("ERROR - Le programme est fortement suceptible de ne pas marcher")
         else:
-            print("Réponse invalide, veuillez recommencer.")
+            print("ERROR - Réponse invalide, veuillez recommencer.")
             exit()
 
 import sys
@@ -138,7 +138,7 @@ def get_flag():
         if not current_flag == previous_flag:
             status, text = set_color(255, 0, 255)
             if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
     
@@ -149,25 +149,16 @@ def get_flag():
             time.sleep(1)
             status, text = set_color(0, 0, 0)
             if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
 
     elif s.mFlag == 0:
         current_flag = "GREEN"
         if not current_flag == previous_flag:
-            status, text = set_color(0, 255, 0)
+            status, text = set_color(0, 0, 0)
             if status == 421:
-                print(error_code[1]) 
-            previous_flag = current_flag
-        return current_flag
-        
-    elif s.mFlag == 6:
-        current_flag = "BLUE"
-        if not current_flag == previous_flag:
-            status, text = set_color(0, 0, 255)
-            if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
         
@@ -176,14 +167,23 @@ def get_flag():
         if not current_flag == previous_flag:
             status, text = set_color(255, 255, 0)
             if status == 421:
-                print(error_code[1]) 
+                print("WARNING - " + error_code[1]) 
+            previous_flag = current_flag
+        return current_flag
+
+    elif s.mFlag == 6:
+        current_flag = "BLUE"
+        if not current_flag == previous_flag:
+            status, text = set_color(0, 0, 255)
+            if status == 421:
+                print("WARNING - " + error_code[1]) 
             previous_flag = current_flag
         return current_flag
 
     else:
         if not current_flag == previous_flag:
             current_flag = s.mFlag
-            print(error_code[2])
+            print("WARNING - " + error_code[2])
             previous_flag = current_flag
         return current_flag
     
@@ -492,8 +492,8 @@ def info_to_update():
         "raining": scoring_info.mRaining * 100,
         "minPathWetness": scoring_info.mMinPathWetness * 100,
         "maxPathWetness": scoring_info.mMaxPathWetness * 100,
-        "ambiantTemp": round(scoring_info.mAmbientTemp, 1),
-        "trackTemp": round(scoring_info.mTrackTemp, 1),
+        "ambiantTemp": round(scoring_info.mAmbientTemp,1),
+        "trackTemp": round(scoring_info.mTrackTemp,1),
         "windSpeed": wind[0],
         "windDegre": wind[1],
         "windDirection": wind[2],
@@ -588,10 +588,10 @@ def info_to_update():
         "rear_Left_Pressure": t.mWheels[2].mPressure * 0.1450377377,
         "rear_Right_Pressure": t.mWheels[3].mPressure * 0.1450377377,
         ############### Tire Flat
-        "front_Left_Flat": "Ok" if t.mWheels[0].mFlat == 0 else "Puncture",
-        "front_Right_Flat": "Ok" if t.mWheels[1].mFlat == 0 else "Puncture",
-        "rear_Left_Flat": "Ok" if t.mWheels[2].mFlat == 0 else "Puncture",
-        "rear_Right_Flat": "Ok" if t.mWheels[3].mFlat == 0 else "Puncture",
+        "front_Left_Flat": "Ok" if t.mWheels[0].mFlat == 0 else "Puncture !",
+        "front_Right_Flat": "Ok" if t.mWheels[1].mFlat == 0 else "Puncture !",
+        "rear_Left_Flat": "Ok" if t.mWheels[2].mFlat == 0 else "Puncture !",
+        "rear_Right_Flat": "Ok" if t.mWheels[3].mFlat == 0 else "Puncture !",
     }
 
 ###############################################################################
@@ -608,7 +608,7 @@ def diagnostic():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=False)
+    app.run(host="0.0.0.0", port=50000, ssl_context=('static/https/cert.pem', 'static/https/key.pem'), debug=False)
 
 #https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin/blob/master/Monitor/rF2SMMonitor/rF2SMMonitor/rF2Data.cs
 #https://github.com/TonyWhitley/pyRfactor2SharedMemory
